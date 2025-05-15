@@ -34,7 +34,7 @@ if (WITH_MPI)
     SET(MPIRUN mpirun)
 endif (WITH_MPI)
 
-set(raptor_sparse_DIR raptor-sparse/src)
+set(raptor_sparse_DIR src)
 set(raptor_sparse_INCDIR ${CMAKE_CURRENT_SOURCE_DIR}/${raptor_sparse_DIR})
 set(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
 
@@ -91,9 +91,9 @@ endif(WITH_MFEM)
 
 add_subdirectory(src)
 
-#if (BUILD_EXAMPLES)
-#  add_subdirectory(examples)
-#endif()
+if (BUILD_EXAMPLES)
+  add_subdirectory(benchmarks)
+endif()
 
 find_package(Doxygen)
 
