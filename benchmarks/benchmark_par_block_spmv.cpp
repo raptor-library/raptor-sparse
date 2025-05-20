@@ -69,6 +69,27 @@ void mult_append(CSCMatrix* A, double* x, double* b)
     }
 }
 
+void mult_append_msg(CSCMatrix* A, double* x, double* b, int start, int end)
+{
+    int col_start, col_end, row;
+    double A_val;
+
+	for (int col = start; col < end; col++)
+	{
+        col_start = A->idx1[col];
+		col_end = A->idx1[col+1];
+		for (int j = col_start; j < col_end; j++)
+		{
+			A_val = A->vals[j];
+			row = A->idx2[j];
+			for (int k = 0; k < BS; k++)
+			{
+				b[row*BS+k] += A_val * x[col*BS+k];
+			}
+		}
+	}
+}
+
 
 void init_sends(ParCSRMatrix* A, double* values)
 {
@@ -142,10 +163,9 @@ void early_comp_spmv(ParCSRMatrix* A, ParVector& x, ParVector& b)
     CSRMatrix* A_on = (CSRMatrix*)A->on_proc;
     CSRMatrix* A_off = (CSRMatrix*)A->off_proc;
 
-    mult(A_on, x.local.data(), b.local.data());
-
     init_recvs(A);
     init_sends(A, x.local.data());
+    mult(A_on, x.local.data(), b.local.data());
     wait_recvs(A);
     mult_append(A_off, A->comm->recv_data->buffer.data(), b.local.data());
     wait_sends(A);
@@ -155,72 +175,54 @@ void CSC_spmv(ParCSRMatrix* A, ParVector& x, ParVector& b, CSCMatrix* A_off_csc)
 {
     CSRMatrix* A_on = (CSRMatrix*)A->on_proc;
 
-    mult(A_on, x.local.data(), b.local.data());
-
     init_recvs(A);
     init_sends(A, x.local.data());
+    mult(A_on, x.local.data(), b.local.data());
     wait_recvs(A);
     mult_append(A_off_csc, A->comm->recv_data->buffer.data(), b.local.data());
     wait_sends(A);
 }
 
+
 void CSC_early_recv_spmv(ParCSRMatrix* A, ParVector& x, ParVector& b, CSCMatrix* A_off_csc)
 {
     CSRMatrix* A_on = (CSRMatrix*)A->on_proc;
 
-    int proc, start, end, idx;
-    int col_start, col_end, row;
-    double A_val;
-    MPI_Status status;
+    int start, end, idx;
 
+    MPI_Status status;
+    int flag = 0;
+
+    init_recvs(A);
+    init_sends(A, x.local.data());
     mult(A_on, x.local.data(), b.local.data());
 
-    init_sends(A, x.local.data());
-
-    for (int i = 0; i < A->comm->recv_data->num_msgs; i++)
-    {
-        /***************************
-        **** Recv a Single Message
-        ***************************/
-        MPI_Probe(MPI_ANY_SOURCE, A->comm->key, A->comm->mpi_comm, &status);
-        proc = status.MPI_SOURCE;
-
-        // Find index of proc in recv comm
-        std::vector<int>::iterator it = std::find(A->comm->recv_data->procs.begin(),
-                A->comm->recv_data->procs.end(), proc);
-        idx = it - A->comm->recv_data->procs.begin();
-
-        // Get start,end of recv
-        start = A->comm->recv_data->indptr[idx];
-        end = A->comm->recv_data->indptr[idx+1];
-
-        MPI_Recv(&(A->comm->recv_data->buffer[start*BS]), (end - start)*BS, MPI_DOUBLE,
-                proc, A->comm->key, A->comm->mpi_comm, &status);
-
-        /***************************
-        **** Multiply this message
-        ***************************/
-        for (int col = start; col < end; col++)
+    int n_req = A->comm->recv_data->num_msgs;
+    int next_n_req = 0;
+    std::vector<int> req_idx(A->comm->recv_data->num_msgs);
+    std::iota(req_idx.begin(), req_idx.end(), 0);
+    while (n_req)
+	{
+        next_n_req = 0;
+		for (int i = 0; i < n_req; i++)
         {
-            col_start = A_off_csc->idx1[col];
-            col_end = A_off_csc->idx1[col+1];
-            for (int j = col_start; j < col_end; j++)
-            {
-                A_val = A_off_csc->vals[j];
-                row = A_off_csc->idx2[j];
-                for (int k = 0; k < BS; k++)
-                {
-                    b.local[row*BS + k] += A_val * A->comm->recv_data->buffer[col*BS+k];
-                }
-            }
-        }
-    }
-
+            idx = req_idx[i];
+		    MPI_Test(&(A->comm->recv_data->requests[idx]), &flag, &status);
+            if (flag)
+			{
+                start = A->comm->recv_data->indptr[idx];
+				end = A->comm->recv_data->indptr[idx+1];
+				mult_append_msg(A_off_csc, A->comm->recv_data->buffer.data(), b.local.data(), start, end);
+			}
+			else
+			{
+				req_idx[next_n_req++] = idx;
+			}
+		}
+        n_req = next_n_req;
+	}
     wait_sends(A);
 }
-
-
-
 
 
 using namespace raptor;

@@ -1,0 +1,34 @@
+#!/bin/bash
+
+#SBATCH --nodes=64
+#SBATCH --ntasks-per-node=112
+#SBATCH --output=spmbvs_N64.%j.out
+#SBATCH --error=spmbvs_N64.%j.err
+#SBATCH --account=UNM
+#SBATCH --time=00:30:00
+##SBATCH --partition=pdebug
+#SBATCH --cpus-per-task=1
+#SBATCH --exclusive
+
+cd $HOME/raptor_cleanup/raptor-sparse/build/benchmarks
+nnodes=64
+ppn=112
+ntasks=$(( ${nnodes} * ${ppn} ))
+
+n_mats=9
+mats=("delaunay_n23" "dielFilterV2real" "hugetrace-00020" "bone010" "spal_004" "wikipedia-20070206" "kron_g500-logn19" "ldoor" "boneS10" "Hardesty3")
+filepath=/usr/workspace/bienz1/benchmark_mats
+ls $filepath
+
+for i in $(seq 0 $n_mats);
+do
+    mat=$filepath/${mats[i]}.pm
+    echo "Testing $mat"
+	srun -n ${ntasks} -N ${nnodes} ./benchmark_par_block_spmv 3 $mat
+done
+
+
+
+
+
+
