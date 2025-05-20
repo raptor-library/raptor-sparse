@@ -1,0 +1,269 @@
+12month1.pm
+333SP.pm
+adaptive.pm
+AS365.pm
+asia_osm.pm
+as-Skitter.pm
+bone010.mtx
+bone010.pm
+boneS10.mtx
+boneS10.pm
+bundle_adj.pm
+cage14.pm
+convert_petsc.py
+CurlCurl_4.pm
+delaunay_n22.pm
+delaunay_n23.mtx
+delaunay_n23.pm
+dgreen.pm
+dielFilterV2clx.pm
+dielFilterV2real.mtx
+dielFilterV2real.pm
+download_and_convert.sh
+F1.pm
+Fault_639.pm
+fem_hifreq_circuit.pm
+FullChip.pm
+germany_osm.pm
+GL7d17.pm
+GL7d20.pm
+gsm_106857.pm
+Hardesty3.mtx
+Hardesty3.pm
+hugetrace-00020.mtx
+hugetrace-00020.pm
+hugetric-00020.pm
+human_gene1.pm
+kron_g500-logn18.pm
+kron_g500-logn19.mtx
+kron_g500-logn19.pm
+ldoor.mtx
+ldoor.pm
+M6.pm
+ML_Laplace.pm
+mouse_gene.pm
+nd24k.pm
+nlpkkt80.pm
+NLR.pm
+PetscBinaryIO.py
+__pycache__
+rajat31.pm
+rel9.pm
+rgg_n_2_21_s0.pm
+spal_004.mtx
+spal_004.pm
+StocF-1465.pm
+Transport.pm
+wikipedia-20070206.mtx
+wikipedia-20070206.pm
+wiki-topcats.pm
+Testing /usr/workspace/bienz1/benchmark_mats/delaunay_n23.pm
+Standard SpMV Time: 9.843619e-02
+Standard SpMV Time: 7.619776e-02
+Standard SpMV Time: 9.859007e-02
+Standard SpMV Time: 7.629875e-02
+Standard SpMV Time: 9.910580e-02
+Early Comp SpMV Time: 8.781898e-02
+Early Comp SpMV Time: 8.779713e-02
+Early Comp SpMV Time: 8.768022e-02
+Early Comp SpMV Time: 6.136628e-02
+Early Comp SpMV Time: 8.830253e-02
+CSC SpMV Time: 8.791423e-02
+CSC SpMV Time: 8.785800e-02
+CSC SpMV Time: 8.746835e-02
+CSC SpMV Time: 8.794347e-02
+CSC SpMV Time: 8.858629e-02
+Early Recv CSC SpMV Time: 8.717604e-02
+Early Recv CSC SpMV Time: 8.725202e-02
+Early Recv CSC SpMV Time: 8.822505e-02
+Early Recv CSC SpMV Time: 8.713333e-02
+Early Recv CSC SpMV Time: 8.783575e-02
+Testing /usr/workspace/bienz1/benchmark_mats/dielFilterV2real.pm
+Standard SpMV Time: 4.513713e-03
+Standard SpMV Time: 4.349985e-03
+Standard SpMV Time: 4.598504e-03
+Standard SpMV Time: 4.478085e-03
+Standard SpMV Time: 4.393981e-03
+Early Comp SpMV Time: 4.593581e-03
+Early Comp SpMV Time: 4.809557e-03
+Early Comp SpMV Time: 4.389554e-03
+Early Comp SpMV Time: 4.362368e-03
+Early Comp SpMV Time: 4.601211e-03
+CSC SpMV Time: 4.533576e-03
+CSC SpMV Time: 4.415924e-03
+CSC SpMV Time: 4.552903e-03
+CSC SpMV Time: 4.779490e-03
+CSC SpMV Time: 4.431395e-03
+Early Recv CSC SpMV Time: 4.394718e-03
+Early Recv CSC SpMV Time: 4.472250e-03
+Early Recv CSC SpMV Time: 4.556576e-03
+Early Recv CSC SpMV Time: 4.325999e-03
+Early Recv CSC SpMV Time: 4.720815e-03
+Testing /usr/workspace/bienz1/benchmark_mats/hugetrace-00020.pm
+Standard SpMV Time: 1.285882e+00
+Standard SpMV Time: 1.281076e+00
+Standard SpMV Time: 1.285025e+00
+Standard SpMV Time: 1.283347e+00
+Standard SpMV Time: 1.288193e+00
+Early Comp SpMV Time: 1.285381e+00
+Early Comp SpMV Time: 1.285739e+00
+Early Comp SpMV Time: 1.280997e+00
+Early Comp SpMV Time: 1.286095e+00
+Early Comp SpMV Time: 1.285503e+00
+CSC SpMV Time: 1.286651e+00
+CSC SpMV Time: 1.281652e+00
+CSC SpMV Time: 1.284696e+00
+CSC SpMV Time: 1.285128e+00
+CSC SpMV Time: 1.285916e+00
+Early Recv CSC SpMV Time: 1.286134e+00
+Early Recv CSC SpMV Time: 1.286011e+00
+Early Recv CSC SpMV Time: 1.281098e+00
+Early Recv CSC SpMV Time: 1.285943e+00
+Early Recv CSC SpMV Time: 1.284692e+00
+Testing /usr/workspace/bienz1/benchmark_mats/bone010.pm
+Standard SpMV Time: 1.303310e-03
+Standard SpMV Time: 1.290971e-03
+Standard SpMV Time: 1.280808e-03
+Standard SpMV Time: 1.311519e-03
+Standard SpMV Time: 1.280646e-03
+Early Comp SpMV Time: 1.489041e-03
+Early Comp SpMV Time: 1.288310e-03
+Early Comp SpMV Time: 1.299110e-03
+Early Comp SpMV Time: 1.293146e-03
+Early Comp SpMV Time: 1.297966e-03
+CSC SpMV Time: 1.416936e-03
+CSC SpMV Time: 1.438530e-03
+CSC SpMV Time: 1.303983e-03
+CSC SpMV Time: 1.419470e-03
+CSC SpMV Time: 1.422655e-03
+Early Recv CSC SpMV Time: 8.567705e-04
+Early Recv CSC SpMV Time: 9.562731e-04
+Early Recv CSC SpMV Time: 8.579478e-04
+Early Recv CSC SpMV Time: 1.009151e-03
+Early Recv CSC SpMV Time: 9.782700e-04
+Testing /usr/workspace/bienz1/benchmark_mats/spal_004.pm
+Standard SpMV Time: 1.169726e-01
+Standard SpMV Time: 1.179376e-01
+Standard SpMV Time: 1.185563e-01
+Standard SpMV Time: 1.164199e-01
+Standard SpMV Time: 1.406440e-01
+Early Comp SpMV Time: 1.179265e-01
+Early Comp SpMV Time: 1.417954e-01
+Early Comp SpMV Time: 1.160685e-01
+Early Comp SpMV Time: 1.189560e-01
+Early Comp SpMV Time: 1.183188e-01
+CSC SpMV Time: 1.181788e-01
+CSC SpMV Time: 1.165752e-01
+CSC SpMV Time: 1.431770e-01
+CSC SpMV Time: 1.183388e-01
+CSC SpMV Time: 1.186890e-01
+Early Recv CSC SpMV Time: 1.167048e-01
+Early Recv CSC SpMV Time: 1.414699e-01
+Early Recv CSC SpMV Time: 1.173902e-01
+Early Recv CSC SpMV Time: 1.431209e-01
+Early Recv CSC SpMV Time: 1.187369e-01
+Testing /usr/workspace/bienz1/benchmark_mats/wikipedia-20070206.pm
+Standard SpMV Time: 1.291389e+00
+Standard SpMV Time: 1.288054e+00
+Standard SpMV Time: 1.290976e+00
+Standard SpMV Time: 1.292260e+00
+Standard SpMV Time: 1.290895e+00
+Early Comp SpMV Time: 1.292145e+00
+Early Comp SpMV Time: 1.291421e+00
+Early Comp SpMV Time: 1.292702e+00
+Early Comp SpMV Time: 1.290915e+00
+Early Comp SpMV Time: 1.306249e+00
+CSC SpMV Time: 1.292406e+00
+CSC SpMV Time: 1.293135e+00
+CSC SpMV Time: 1.291888e+00
+CSC SpMV Time: 1.293099e+00
+CSC SpMV Time: 1.291100e+00
+Early Recv CSC SpMV Time: 1.293694e+00
+Early Recv CSC SpMV Time: 1.290976e+00
+Early Recv CSC SpMV Time: 1.293350e+00
+Early Recv CSC SpMV Time: 1.291694e+00
+Early Recv CSC SpMV Time: 1.293242e+00
+Testing /usr/workspace/bienz1/benchmark_mats/kron_g500-logn19.pm
+Standard SpMV Time: 1.853514e-01
+Standard SpMV Time: 3.383953e-01
+Standard SpMV Time: 2.493399e-01
+Standard SpMV Time: 1.825687e-01
+Standard SpMV Time: 1.832136e-01
+Early Comp SpMV Time: 2.068237e-01
+Early Comp SpMV Time: 1.826117e-01
+Early Comp SpMV Time: 2.588290e-01
+Early Comp SpMV Time: 1.828684e-01
+Early Comp SpMV Time: 3.375793e-01
+CSC SpMV Time: 2.476325e-01
+CSC SpMV Time: 2.090158e-01
+CSC SpMV Time: 2.863392e-01
+CSC SpMV Time: 2.057695e-01
+CSC SpMV Time: 2.835490e-01
+Early Recv CSC SpMV Time: 2.067602e-01
+Early Recv CSC SpMV Time: 2.081472e-01
+Early Recv CSC SpMV Time: 3.335140e-01
+Early Recv CSC SpMV Time: 2.060554e-01
+Early Recv CSC SpMV Time: 2.863284e-01
+Testing /usr/workspace/bienz1/benchmark_mats/ldoor.pm
+Standard SpMV Time: 1.200987e-03
+Standard SpMV Time: 1.192500e-03
+Standard SpMV Time: 1.192492e-03
+Standard SpMV Time: 1.519828e-03
+Standard SpMV Time: 1.171949e-03
+Early Comp SpMV Time: 1.267564e-03
+Early Comp SpMV Time: 1.176927e-03
+Early Comp SpMV Time: 1.272525e-03
+Early Comp SpMV Time: 1.202219e-03
+Early Comp SpMV Time: 1.284516e-03
+CSC SpMV Time: 1.194336e-03
+CSC SpMV Time: 1.333950e-03
+CSC SpMV Time: 1.196655e-03
+CSC SpMV Time: 1.294657e-03
+CSC SpMV Time: 1.567188e-03
+Early Recv CSC SpMV Time: 1.002303e-03
+Early Recv CSC SpMV Time: 9.296298e-04
+Early Recv CSC SpMV Time: 1.023805e-03
+Early Recv CSC SpMV Time: 1.030135e-03
+Early Recv CSC SpMV Time: 9.174738e-04
+Testing /usr/workspace/bienz1/benchmark_mats/boneS10.pm
+Standard SpMV Time: 1.076705e-03
+Standard SpMV Time: 1.073007e-03
+Standard SpMV Time: 1.093140e-03
+Standard SpMV Time: 1.106178e-03
+Standard SpMV Time: 1.068558e-03
+Early Comp SpMV Time: 1.165955e-03
+Early Comp SpMV Time: 1.197083e-03
+Early Comp SpMV Time: 1.189024e-03
+Early Comp SpMV Time: 1.074670e-03
+Early Comp SpMV Time: 1.143618e-03
+CSC SpMV Time: 1.143043e-03
+CSC SpMV Time: 1.174585e-03
+CSC SpMV Time: 1.078445e-03
+CSC SpMV Time: 1.163770e-03
+CSC SpMV Time: 1.171443e-03
+Early Recv CSC SpMV Time: 7.905124e-04
+Early Recv CSC SpMV Time: 6.974066e-04
+Early Recv CSC SpMV Time: 7.834126e-04
+Early Recv CSC SpMV Time: 7.975710e-04
+Early Recv CSC SpMV Time: 7.758950e-04
+Testing /usr/workspace/bienz1/benchmark_mats/Hardesty3.pm
+Standard SpMV Time: 9.854487e-03
+Standard SpMV Time: 9.901081e-03
+Standard SpMV Time: 9.849651e-03
+Standard SpMV Time: 9.937559e-03
+Standard SpMV Time: 1.102655e-02
+Early Comp SpMV Time: 1.106278e-02
+Early Comp SpMV Time: 9.886011e-03
+Early Comp SpMV Time: 1.110802e-02
+Early Comp SpMV Time: 1.111334e-02
+Early Comp SpMV Time: 1.153121e-02
+CSC SpMV Time: 2.795284e-02
+CSC SpMV Time: 2.695247e-02
+CSC SpMV Time: 1.024468e-02
+CSC SpMV Time: 2.743639e-02
+CSC SpMV Time: 1.118806e-02
+Early Recv CSC SpMV Time: 1.110623e-02
+Early Recv CSC SpMV Time: 1.127475e-02
+Early Recv CSC SpMV Time: 9.810487e-03
+Early Recv CSC SpMV Time: 1.083270e-02
+Early Recv CSC SpMV Time: 9.826161e-03
