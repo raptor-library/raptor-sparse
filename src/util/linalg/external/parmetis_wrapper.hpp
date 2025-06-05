@@ -4,7 +4,7 @@
 #ifndef RAPTOR_GALLERY_PARMETIS_HPP
 #define RAPTOR_GALLERY_PARMETIS_HPP
 
-#include "raptor/raptor.hpp"
+#include "src/raptor-sparse.hpp"
 #include "parmetis.h"
 
 using namespace raptor;
