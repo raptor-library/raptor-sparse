@@ -1,6 +1,20 @@
 # Include the directory itself as a path to include directories
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
+if (WITH_MFEM)
+    set(mfem_HEADERS
+        external/mfem_wrapper.hpp
+    )
+    set(mfem_SOURCES 
+        external/mfem/mfem_linear_elasticity.cpp
+        external/mfem/mfem_laplacian.cpp
+        external/mfem/mfem_grad_div.cpp
+        external/mfem/mfem_adaptive_laplacian.cpp
+        external/mfem/mfem_dg_diffusion.cpp
+        external/mfem/mfem_dg_elasticity.cpp
+       )
+endif()
+
 # Create a variable called gallery_SOURCES containing all .cpp files:
 if (WITH_MPI)
     set(par_gallery_HEADERS

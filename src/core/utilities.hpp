@@ -97,6 +97,33 @@ void vec_sort(std::vector<T>& vec1, std::vector<T>& vec2,
     }
 }
 
+// Methods for appending two values
+// (either single or block values)
+void append_vals(double* val, double* addl_val, int b_size)
+{
+    *val += *addl_val;
+}
+void append_vals(double** val, double** addl_val, int b_size)
+{
+    for (size_t i = 0; i < b_size; ++i)
+    {
+        *val[i] += *addl_val[i];
+    }
+}
+
+double abs_val(double val, int b_size)
+{
+    return fabs(val);
+}
+double abs_val(double* val, int b_size)
+{
+    double sum = 0;
+    for (int i = 0; i < b_size; i++)
+    {
+        sum += fabs(val[i]);
+    }
+    return sum;
+}
 
 enum extents : std::size_t {
   dynamic_extent = std::numeric_limits<std::size_t>::max()

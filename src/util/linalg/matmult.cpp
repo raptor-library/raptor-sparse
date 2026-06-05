@@ -1,122 +1,31 @@
 #include "src/core/matrix.hpp"
+#include "src/core/csr_matrix.hpp"
+#include "src/core/bsr_matrix.hpp"
 
-using namespace raptor;
-
-// Declare Private Methods
-std::vector<double>& form_new(const CSRMatrix* A, const CSRMatrix* B, 
-        CSRMatrix** C_ptr, std::vector<double>& A_vals);
-std::vector<double*>& form_new(const CSRMatrix* A, const CSRMatrix* B, 
-        CSRMatrix** C_ptr, std::vector<double*>& A_vals);
-std::vector<double>& form_new(const CSCMatrix* A, const CSRMatrix* B,
-        CSRMatrix** C_ptr, std::vector<double>& A_vals);
-std::vector<double*>& form_new(const CSCMatrix* A, const CSRMatrix* B,
-        CSRMatrix** C_ptr, std::vector<double*>& A_vals);
-void init_sums(std::vector<double>& sums, int size, int b_size);
-void init_sums(std::vector<double*>& sums, int size, int b_size);
-void zero_sum(double* sum, int b_size);
-void zero_sum(double** sum, int b_size);
-void finalize_sums(std::vector<double>& sums);
-void finalize_sums(std::vector<double*>& sums);
-
-
-std::vector<double>& form_new(const CSRMatrix* A, const CSRMatrix* B, 
-        CSRMatrix** C_ptr, std::vector<double>& A_vals)
-{
-    CSRMatrix* C = new CSRMatrix(A->n_rows, B->n_cols);
-    *C_ptr = C;
-    return C->vals;
-}
-std::vector<double*>& form_new(const CSRMatrix* A, const CSRMatrix* B, 
-        CSRMatrix** C_ptr, std::vector<double*>& A_vals)
-{
-    BSRMatrix* C = new BSRMatrix(A->n_rows, B->n_cols, 
-            A->b_rows, B->b_cols);
-    *C_ptr = C;
-    return C->block_vals;
-}
-std::vector<double>& form_new(const CSCMatrix* A, const CSRMatrix* B,
-        CSRMatrix** C_ptr, std::vector<double>& A_vals)
-{
-    CSRMatrix* C = new CSRMatrix(A->n_cols, B->n_cols);
-    *C_ptr = C;
-    return C->vals;
-}
-std::vector<double*>& form_new(const CSCMatrix* A, const CSRMatrix* B,
-        CSRMatrix** C_ptr, std::vector<double*>& A_vals)
-{
-    BSRMatrix* C = new BSRMatrix(A->n_cols, B->n_cols,
-            A->b_cols, B->b_cols);
-    *C_ptr = C;
-    return C->block_vals;
-}
-
-void init_sums(std::vector<double>& sums, int size, int b_size)
-{
-    sums.resize(size, 0);
-}
-void init_sums(std::vector<double*>& sums, int size, int b_size)
-{
-    for (int i = 0; i < size; i++)
-    {
-        sums.emplace_back(new double[b_size]);
-        for (int j = 0; j < b_size; j++)
-            sums[i][j] = 0.0;
-    }
-}
-
-void zero_sum(double* sum, int b_size)
-{
-    *sum = 0;
-}
-void zero_sum(double** sum, int b_size)
-{
-    (*sum) = new double[b_size];
-    for (int i = 0; i < b_size; i++)
-        (*sum)[i] = 0;
-}
-
-void finalize_sums(std::vector<double>& sums)
-{
-    return;
-}
-void finalize_sums(std::vector<double*>& sums)
-{
-    for (std::vector<double*>::iterator it = sums.begin();
-            it != sums.end(); ++it)
-        delete[] *it;
-}
-
-template <typename T>
-CSRMatrix* spgemm_helper(const CSRMatrix* A, const CSRMatrix* B, 
-        std::vector<T>& A_vals, std::vector<T>& B_vals,
-        int* B_to_C = NULL)
+CSRMatrix* CSRMatrix::mult(const CSRMatrix* B, int* C_map)
 {
     std::vector<int> next(B->n_cols, -1);
-    std::vector<T> sums;
-    init_sums(sums, B->n_cols, B->b_size);
+    std::vector<double> sums(B->n_cols, 0);
 
-    CSRMatrix* C = NULL;
-    std::vector<T>& C_vals = form_new(A, B, &C, A_vals);
-    C->reserve_size(1.5*A->nnz);
+    CSRMatrix* C = new CSRMatrix(n_rows, B->n_cols);
 
-    C->idx1[0] = 0;
-    for (int i = 0; i < A->n_rows; i++)
+    C->rowptr[0] = 0;
+    for (int i = 0; i < n_rows; i++)
     {
         int head = -2;
         int length = 0;
-        int row_start_A = A->idx1[i];
-        int row_end_A = A->idx1[i+1];
-        for (int j = row_start_A; j < row_end_A; j++)
+        int row_start = rowptr[i];
+        int row_end = rowptr[i+1];
+        for (int j = row_start; j < row_end; j++)
         {
-            int col_A = A->idx2[j];
-            T val_A = A_vals[j];
-            int row_start_B = B->idx1[col_A];
-            int row_end_B = B->idx1[col_A+1];
+            int col = cols[j];
+            double val = data[j];
+            int row_start_B = B->rowptr[col];
+            int row_end_B = B->rowptr[col+1];
             for (int k = row_start_B; k < row_end_B; k++)
             {
-                int col_B = B->idx2[k];
-                A->mult_vals(val_A, B_vals[k], &sums[col_B],
-                        A->b_rows, B->b_cols, A->b_cols);
+                int col_B = B->cols[k];
+                sums[col_B] += val * B->data[k];
                 if (next[col_B] == -1)
                 {
                     next[col_B] = head;
@@ -127,64 +36,56 @@ CSRMatrix* spgemm_helper(const CSRMatrix* A, const CSRMatrix* B,
         }
         for (int j = 0; j < length; j++)
         {
-            double val = A->abs_val(sums[head]);
-            if (val > zero_tol)
-            {
-                if (B_to_C) 
-                {
-                    C->idx2.emplace_back(B_to_C[head]);
-                }
-                else
-                {
-                    C->idx2.emplace_back(head);
-                }
-                C_vals.emplace_back(sums[head]);
-            }
-            int tmp = head;
-            head = next[head];
-            next[tmp] = -1;
-            zero_sum(&sums[tmp], A->b_size);
-        }
-        C->idx1[i+1] = C->idx2.size();
-    }
-    C->nnz = C->idx2.size();
+            int col = head;
+            head = next[col];
+            next[col] = -1;
+            double val = sums[col];
+            sums[col] = 0;
 
-    finalize_sums(sums);
+            if (fabs(val) > zero_tol)
+            {
+                if (C_map)
+                {
+                    col = C_map[col];
+                }
+                C->cols.push_back(col); 
+                C->data.push_back(val);       
+            }
+        }
+        C->rowptr[i+1] = C->cols.size();
+    }
+    C->nnz = C->cols.size();
 
     return C;
 }
 
-template <typename T>
-CSRMatrix* spgemm_T_helper(const CSCMatrix* A, const CSRMatrix* B,
-        std::vector<T>& A_vals, std::vector<T>& B_vals,
-        int* C_map = NULL)
+
+CSRMatrix* CSRMatrix::mult_T(const CSRMatrix* B, int* C_map)
 {
-    CSRMatrix* C;
-    std::vector<T>& C_vals = form_new(A, B, &C, A_vals);
-    C->reserve_size(1.5*B->nnz);
+    CSCMatrix* AT = new CSCMatrix(this);
 
-    std::vector<int> next(B->n_cols, -1); 
-    std::vector<T> sums;
-    init_sums(sums, B->n_cols, A->b_size);
+    std::vector<int> next(B->n_cols, -1);
+    std::vector<double> sums(B->n_cols, 0);
 
-    C->idx1[0] = 0;
-    for (int i = 0; i < A->n_cols; i++)
+    CSRMatrix* C = new CSRMatrix(n_cols, B->n_cols);
+
+    C->rowptr[0] = 0;
+    for (int i = 0; i < AT->n_cols; i++)
     {
         int head = -2;
         int length = 0;
-        int row_start_AT = A->idx1[i];
-        int row_end_AT = A->idx1[i+1];
-        for (int j = row_start_AT; j < row_end_AT; j++)
+        int col_start = AT->colptr[i];
+        int col_end = AT->colptr[i+1];
+        for (int j = col_start; j < col_end; j++)
         {
-            int col_AT = A->idx2[j];
-            T val_AT = A_vals[j];
-            int row_start = B->idx1[col_AT];
-            int row_end = B->idx1[col_AT+1];
-            for (int k = row_start; k < row_end; k++)
+            int row = AT->rows[j];
+            double val = AT->data[j];
+            int row_start_B = B->rowptr[row];
+            int row_end_B = B->rowptr[row+1];
+            for (int k = row_start_B; k < row_end_B; k++)
             {
-                int col = B->idx2[k];
-                A->mult_T_vals(val_AT, B_vals[k], &sums[col],
-                        A->b_cols, B->b_cols, A->b_rows);
+                int col = B->cols[k];
+                sums[col] += val * B->data[k];
                 if (next[col] == -1)
                 {
                     next[col] = head;
@@ -195,158 +96,163 @@ CSRMatrix* spgemm_T_helper(const CSCMatrix* A, const CSRMatrix* B,
         }
         for (int j = 0; j < length; j++)
         {
-            if (A->abs_val(sums[head]) > zero_tol)
+            int col = head;
+            double val = sums[col];
+            head = next[col];
+            next[col] = -1;
+            sums[col] = 0;
+            if (fabs(val) > zero_tol)
             {
                 if (C_map)
                 {
-                    C->idx2.emplace_back(C_map[head]);
+                    col = C_map[col];
+                }
+                C->cols.push_back(col);
+                C->data.push_back(val);
+            }
+        }
+        C->rowptr[i+1] = C->cols.size();
+    }
+    C->nnz = C->cols.size();
+
+    delete AT;
+    return C;
+}
+
+
+
+
+BSRMatrix* BSRMatrix::mult(const BSRMatrix* B, int* C_map)
+{
+    std::vector<int> next(B->n_cols, -1);
+    std::vector<std::array<double, b_size>> sums(B->n_cols);
+    for (std::array<double, b_size>& s : sums)
+    {
+        s.fill(0.0);
+    }
+
+    BSRMatrix<b_rows, b_cols>* C = new BSRMatrix<b_rows, b_cols>(n_rows, B->n_cols);
+
+    C->rowptr[0] = 0;
+    for (int i = 0; i < n_rows; i++)
+    {
+        int head = -2;
+        int length = 0;
+        int row_start = rowptr[i];
+        int row_end = rowptr[i+1];
+        for (int j = row_start; j < row_end; j++)
+        {
+            int col = cols[j];
+            int row_start_B = B->rowptr[col];
+            int row_end_B = B->rowptr[col+1];
+            for (int k = row_start_B; k < row_end_B; k++)
+            {
+                int col_B = B->cols[k];
+                cblas_dgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, b_rows, b_cols, 
+                        b_cols, 1.0, data[j].data(), b_cols, B->data[k].data(), b_cols,
+                        1.0, sums[col_B].data(), b_cols);
+                if (next[col_B] == -1)
+                {
+                    next[col_B] = head;
+                    head = col_B;
+                    length++;
+                }
+            }
+        }
+        for (int j = 0; j < length; j++)
+        {
+            int col = head;
+            head = next[col];
+            next[col] = -1;
+            std::array<double, b_size> block = sums[col];
+
+            if (abs_val(sums[col]) > zero_tol)
+            {
+                if (C_map)
+                {
+                    C->cols.push_back(C_map[col]);
                 }
                 else
                 {
-                    C->idx2.emplace_back(head);
+                    C->cols.push_back(col); 
                 }
-                C_vals.emplace_back(sums[head]);
+                C->data.push_back(block);       
             }
-            int tmp = head;
-            head = next[head];
-            next[tmp] = -1;
-            zero_sum(&sums[tmp], A->b_size);
+            sums[col].fill(0.0);
         }
-        C->idx1[i+1] = C->idx2.size();
+        C->rowptr[i+1] = C->cols.size();
     }
-    C->nnz = C->idx2.size();
-
-    finalize_sums(sums);
+    C->nnz = C->cols.size();
 
     return C;
 }
 
 
-CSRMatrix* Matrix::mult(CSRMatrix* B, int* B_to_C)
+BSRMatrix* BSRMatrix::mult_T(const BSRMatrix* B, int* C_map)
 {
-    return spgemm(B, B_to_C);
-}
-CSRMatrix* Matrix::mult(CSCMatrix* B, int* B_to_C)
-{
-    CSRMatrix* B_csr = B->to_CSR();
-    CSRMatrix* C = spgemm(B_csr, B_to_C);
-    delete B_csr;
-    return C;
-}
-CSRMatrix* Matrix::mult(COOMatrix* B, int* B_to_C)
-{
-    CSRMatrix* B_csr = B->to_CSR();
-    CSRMatrix* C = spgemm(B_csr, B_to_C);
-    delete B_csr;
+    BSCMatrix<b_rows, b_cols>* AT = new BSCMatrix<b_rows, b_cols>(this);
+
+    std::vector<int> next(B->n_cols, -1);
+    std::vector<std::array<double, b_size>> sums(B->n_cols);
+    for (std::array<double, b_size>& s : sums)
+    {
+        s.fill(0.0);
+    }
+
+    BSRMatrix<b_cols, b_cols>* C = new BSRMatrix<b_cols, b_cols>(n_cols, B->n_cols);
+
+    C->rowptr[0] = 0;
+    for (int i = 0; i < AT->n_cols; i++)
+    {
+        int head = -2;
+        int length = 0;
+        int col_start = AT->colptr[i];
+        int col_end = AT->colptr[i+1];
+        for (int j = col_start; j < col_end; j++)
+        {
+            int row = AT->rows[j];
+            int row_start_B = B->rowptr[row];
+            int row_end_B = B->rowptr[row+1];
+            for (int k = row_start_B; k < row_end_B; k++)
+            {
+                int col = B->cols[k];
+                cblas_dgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, b_cols, b_cols, 
+                        b_rows, 1.0, AT->data[j].data(), b_rows, B->data[k].data(), b_cols,
+                        1.0, sums[col].data(), b_cols);
+                if (next[col] == -1)
+                {
+                    next[col] = head;
+                    head = col;
+                    length++;
+                }
+            }
+        }
+        for (int j = 0; j < length; j++)
+        {
+            int col = head;
+            head = next[col];
+            next[col] = -1;
+            std::array<double, b_size> block = sums[col];
+
+            if (abs_val(block) > zero_tol)
+            {
+                if (C_map)
+                {
+                    C->cols.push_back(C_map[col]);
+                }
+                else
+                {
+                    C->cols.push_back(col); 
+                }
+                C->data.push_back(block);       
+            }
+            sums[col].fill(0.0);
+        }
+        C->rowptr[i+1] = C->cols.size();
+    }
+    C->nnz = C->cols.size();
+
+    delete AT;
     return C;
 }
 
-CSRMatrix* Matrix::mult_T(CSCMatrix* A, int* C_map)
-{
-    return spgemm_T(A, C_map);
-}
-CSRMatrix* Matrix::mult_T(CSRMatrix* A, int* C_map)
-{
-    CSCMatrix* A_csc = A->to_CSC();
-    CSRMatrix* C = spgemm_T(A_csc, C_map);
-    delete A_csc;
-    return C;
-}
-CSRMatrix* Matrix::mult_T(COOMatrix* A, int* C_map)
-{
-    CSCMatrix* A_csc = A->to_CSC();
-    CSRMatrix* C = spgemm_T(A_csc, C_map);
-    delete A_csc;
-    return C;
-}
-
-CSRMatrix* CSRMatrix::spgemm(CSRMatrix* B, int* B_to_C)
-{
-    return spgemm_helper(this, B, vals, B->vals, B_to_C);
-}
-BSRMatrix* BSRMatrix::spgemm(CSRMatrix* B, int* B_to_C)
-{
-    BSRMatrix* B_bsr = (BSRMatrix*) B;
-    return (BSRMatrix*) spgemm_helper(this, B_bsr, block_vals, 
-            B_bsr->block_vals, B_to_C);
-}
-CSRMatrix* COOMatrix::spgemm(CSRMatrix* B, int* B_to_C)
-{
-    CSRMatrix* A_csr = to_CSR();
-    CSRMatrix* C = spgemm_helper(A_csr, B, A_csr->vals, B->vals, 
-            B_to_C);
-    delete A_csr;
-    return C;
-}
-BSRMatrix* BCOOMatrix::spgemm(CSRMatrix* B, int* B_to_C)
-{
-    BSRMatrix* A_bsr = (BSRMatrix*) to_BSR();
-    BSRMatrix* B_bsr = (BSRMatrix*) B;
-    BSRMatrix* C = (BSRMatrix*) spgemm_helper(A_bsr, B_bsr, 
-            A_bsr->block_vals, B_bsr->block_vals, B_to_C);
-    delete A_bsr;
-    return C;
-}
-CSRMatrix* CSCMatrix::spgemm(CSRMatrix* B, int* B_to_C)
-{
-    CSRMatrix* A_csr = to_CSR();
-    CSRMatrix* C = spgemm_helper(A_csr, B, A_csr->vals, B->vals,
-            B_to_C);
-    delete A_csr;
-    return C;
-}
-BSRMatrix* BSCMatrix::spgemm(CSRMatrix* B, int* B_to_C)
-{
-    BSRMatrix* A_bsr = (BSRMatrix*) to_BSR();
-    BSRMatrix* B_bsr = (BSRMatrix*) B;
-    BSRMatrix* C = (BSRMatrix*) spgemm_helper(A_bsr, B_bsr, 
-            A_bsr->block_vals, B_bsr->block_vals, B_to_C);
-    delete A_bsr;
-    return C;
-}
-
-
-CSRMatrix* CSRMatrix::spgemm_T(CSCMatrix* A, int* C_map)
-{
-    return spgemm_T_helper(A, this, A->vals, vals, C_map);
-}
-BSRMatrix* BSRMatrix::spgemm_T(CSCMatrix* A, int* C_map)
-{
-    BSCMatrix* A_bsc = (BSCMatrix*) A;
-    return (BSRMatrix*) spgemm_T_helper(A_bsc, this, 
-            A_bsc->block_vals, block_vals, C_map);
-}
-CSRMatrix* COOMatrix::spgemm_T(CSCMatrix* A, int* C_map)
-{
-    CSRMatrix* B_csr = to_CSR();
-    CSRMatrix* C = spgemm_T_helper(A, B_csr, A->vals, 
-            B_csr->vals, C_map);
-    delete B_csr;
-    return C;
-}
-BSRMatrix* BCOOMatrix::spgemm_T(CSCMatrix* A, int* C_map)
-{
-    BSCMatrix* A_bsc = (BSCMatrix*) A;
-    BSRMatrix* B_bsr = (BSRMatrix*) to_BSR();
-    BSRMatrix* C = (BSRMatrix*) spgemm_T_helper(A_bsc, B_bsr, 
-            A_bsc->block_vals, B_bsr->block_vals, C_map);
-    delete B_bsr;
-    return C;
-}
-CSRMatrix* CSCMatrix::spgemm_T(CSCMatrix* A, int* C_map)
-{
-    CSRMatrix* B_csr = to_CSR();
-    CSRMatrix* C = spgemm_T_helper(A, B_csr, A->vals, 
-            B_csr->vals, C_map);
-    delete B_csr;
-    return C;
-}
-BSRMatrix* BSCMatrix::spgemm_T(CSCMatrix* A, int* C_map)
-{
-    BSCMatrix* A_bsc = (BSCMatrix*) A;
-    BSRMatrix* B_bsr = (BSRMatrix*) to_BSR();
-    BSRMatrix* C = (BSRMatrix*) spgemm_T_helper(A_bsc, B_bsr, 
-            A_bsc->block_vals, B_bsr->block_vals, C_map);
-    delete B_bsr;
-    return C;
-}

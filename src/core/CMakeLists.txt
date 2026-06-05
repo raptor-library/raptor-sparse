@@ -33,7 +33,9 @@ endif()
 
 set(core_SOURCES 
     core/vector.cpp
-    core/matrix.cpp
+    core/matrix/csr_matrix.cpp
+    core/matrix/csc_matrix.cpp
+    core/matrix/coo_matrix.cpp
     ${par_core_SOURCES}
     PARENT_SCOPE
     )
@@ -41,6 +43,12 @@ set(core_HEADERS
     core/types.hpp
     core/vector.hpp
     core/matrix.hpp
+    core/matrix/matrix_base.hpp
+    core/matrix/csr_matrix.hpp
+    core/matrix/csc_matrix.hpp
+    core/matrix/coo_matrix.hpp
+    core/matrix/bsr_matrix.hpp
+    core/matrix/bsc_matrix.hpp
     core/utilities.hpp
     ${par_core_HEADERS}
     PARENT_SCOPE
