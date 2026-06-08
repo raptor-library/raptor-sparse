@@ -37,6 +37,10 @@ namespace raptor
     {
         public:
 
+        CSCMatrix() : Matrix() 
+        {
+        }
+
         CSCMatrix(int _nrows, int _ncols, int _nnz = 0) : Matrix(_nrows, _ncols)
         {
             colptr.resize(n_cols+1);
@@ -57,7 +61,7 @@ namespace raptor
             {
                 for (int j = 0; j < n_rows; j++)
                 {
-                    int pos = i*n_cols+j;
+                    int pos = j*n_cols+i;
                     if (fabs(_data[pos]) > zero_tol)
                     {
                         rows.push_back(j);
@@ -267,6 +271,8 @@ namespace raptor
 
         // Linear Algebra Methods
         void spmv(const double alpha, const double* x, 
+                const double beta, double* b);
+        void spmv_T(const double alpha, const double* x,
                 const double beta, double* b);
 
         std::vector<int> colptr;

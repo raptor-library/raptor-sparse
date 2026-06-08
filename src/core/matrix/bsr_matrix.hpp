@@ -64,7 +64,7 @@ namespace raptor
                 for (int j = 0; j < n_cols; j++)
                 {
                     double sum = 0;
-                    std::array<double, b_size> block;
+                    double* block = new double[b_size]();
                     for (int bi = 0; bi < b_rows; bi++)
                     {
                         int row = i*b_rows+bi;
@@ -81,6 +81,10 @@ namespace raptor
                         cols.push_back(j);
                         data.push_back(block);
                         nnz++;
+                    }
+                    else
+                    {
+                        delete[] block;
                     }
                 }
                 rowptr[i+1] = nnz;
@@ -140,7 +144,7 @@ namespace raptor
 
         ~BSRMatrix()
         {
-            for (int i = 0; i < data.size(); i++)
+            for (int i = 0; i < (int) data.size(); i++)
             {
                 delete data[i];
             }
@@ -197,9 +201,17 @@ namespace raptor
             }
         }
 
+        // Linear Algebra
+        void spmv(const double alpha, const double* x,
+                const double beta, double* b);
+        void spmv_T(const double alpha, const double* x,
+                const double beta, double* b);
+        void add(BSRMatrix* B, BSRMatrix* C, double alpha, bool duplicates);
+        void add(BSRMatrix* B, BSRMatrix* C, bool duplicates);
+        void subtract(BSRMatrix* B, BSRMatrix* C);
+
         // Underlying storage will be contiguous
-        static constexpr int b_size = b_rows*b_cols;
-        std::vector<std::array<double, b_size>> data;
+        std::vector<double*> data;
   };
 }
 

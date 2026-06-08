@@ -74,7 +74,7 @@ CSRMatrix* read_mm(const char *fname)
     }
     fclose(f);
 
-    CSRMatrix* A_csr = A->to_CSR();
+    CSRMatrix* A_csr = new CSRMatrix(A);
     delete A;
  
     return A_csr;

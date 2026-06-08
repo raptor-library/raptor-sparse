@@ -5,7 +5,7 @@
 
 using namespace raptor;
 
-void add(CSRMatrix* B, CSRMatrix* C, double alpha, bool duplicates)
+void CSRMatrix::add(CSRMatrix* B, CSRMatrix* C, double alpha, bool duplicates)
 {
     int start, end;
     int C_nnz = nnz + B->nnz;
@@ -67,7 +67,7 @@ void CSRMatrix::subtract(CSRMatrix* B, CSRMatrix* C)
 
 
 
-void add(BSRMatrix* B, BSRMatrix* C, double alpha, bool duplicates)
+void BSRMatrix::add(BSRMatrix* B, BSRMatrix* C, double alpha, bool duplicates)
 {
     int start, end;
     int C_nnz = nnz + B->nnz;
@@ -100,7 +100,7 @@ void add(BSRMatrix* B, BSRMatrix* C, double alpha, bool duplicates)
         {
             for (int j = 0; j < (end - start); j++)
             {
-                std::array<double, b_size> block;
+                double* block = new double[A->b_size];
                 for (int k = 0; k < b_size; k++)
                 {
                     block[k] = alpha*B->data[start+j][k];

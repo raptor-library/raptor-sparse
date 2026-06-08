@@ -77,8 +77,20 @@ namespace raptor
 
         virtual void spmv(const double alpha, const double* x, 
                 const double beta, double* b) = 0;
+        virtual void spmv_T(const double alpha, const double* x,
+                const double beta, double* b) = 0;
         void mult(const double* x, double* b);
+        void mult_T(const double* x, double* b);
         void residual(const double* x, const double* b, double* r);
+
+        void mult(Vector& x, Vector& b)
+        {
+            mult(x.data(), b.data());
+        }
+        void mult_T(Vector& x, Vector& b)
+        {
+            spmv_T(1.0, x.data(), 0.0, b.data());
+        }
 
 
         int n_rows;

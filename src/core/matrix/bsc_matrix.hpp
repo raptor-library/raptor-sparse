@@ -2,6 +2,7 @@
 #define RAPTOR_CORE_BSC_MATRIX_HPP
 
 #include "src/core/matrix.hpp"
+#include <cstring>
 
 // TODO: Currently using column-major layout (e.g. fortran layout) 
 // within blocks.  Is this correct, or do we want blocks to still 
@@ -71,7 +72,7 @@ namespace raptor
                 for (int j = 0; j < n_rows; j++)
                 {
                     double sum = 0;
-                    std::array<double, b_size> block;
+                    double* block = new double[b_size]();
                     for (int bi = 0; bi < b_cols; bi++)
                     {
                         int col = i*b_cols+bi;
@@ -124,7 +125,7 @@ namespace raptor
             }
         }
 
-        BSCMatrix(CSCMatrix* A, int _brows, _bcols)
+        BSCMatrix(CSCMatrix* A, int _brows, int _bcols)
         {
             b_rows = _brows;
             b_cols = _bcols;
@@ -177,14 +178,14 @@ namespace raptor
 
         ~BSCMatrix()
         {
-            for (int i = 0; i < data.size(); i++)
+            for (int i = 0; i < (int)data.size(); i++)
             {
-                delete data[i];
+                delete[] data[i];
             }
         }
 
 
-        BSCMatrix<b_cols, b_rows>* transpose()
+        BSCMatrix* transpose()
         {
             BSRMatrix* T_bsr = new BSRMatrix(n_cols, n_rows, b_cols,
                     b_rows, colptr, rows, data);
@@ -223,7 +224,7 @@ namespace raptor
                 col_end = colptr[col+1];
                 for (int j = col_start; j < col_end; j++)
                 {
-                    double* = data[j];
+                    double* val = data[j];
                     for (int bcol = 0; bcol < b_cols; bcol++)
                     {
                         for (int brow = 0; brow < b_rows; brow++)
@@ -236,9 +237,14 @@ namespace raptor
             }
         }
 
+        // Linear Algebra Methods
+        void spmv(const double alpha, const double* x, 
+                const double beta, double* b);
+        void spmv_T(const double alpha, const double* x, 
+                const double beta, double* b);
+
         // Underlying storage will be contiguous
-        static constexpr int b_size = b_rows*b_cols;
-        std::vector<std::array<double, b_size>> data;
+        std::vector<double*> data;
   };
 }
 

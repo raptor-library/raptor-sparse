@@ -36,6 +36,10 @@ namespace raptor
   class CSRMatrix : public Matrix
   {
     public:
+        CSRMatrix() : Matrix()
+        {
+        }
+
         CSRMatrix(int _nrows, int _ncols, int _nnz = 0): Matrix(_nrows, _ncols)
         {
             rowptr.resize(n_rows + 1);
@@ -89,6 +93,7 @@ namespace raptor
         CSRMatrix(CSRMatrix* A);
         CSRMatrix(COOMatrix* A);
         CSRMatrix(CSCMatrix* A);
+        CSRMatrix(BSRMatrix* A);
 
         ~CSRMatrix(){}
 
@@ -277,8 +282,17 @@ namespace raptor
         // Linear Algebra Methods
         void spmv(const double alpha, const double* x, 
                 const double beta, double* b);
+        void spmv_T(const double alpha, const double* x, 
+                const double beta, double* b);
+        void add(CSRMatrix* B, CSRMatrix* C, double alpha, bool duplicates);
         void add(CSRMatrix* B, CSRMatrix* C, bool duplicates);
         void subtract(CSRMatrix* B, CSRMatrix* C);
+
+        // Keep base class implementations available, but also overload
+        using Matrix::mult;
+        using Matrix::mult_t;
+        CSRMatrix* mult(const CSRMatrix* B, int* C_map = nullptr);
+        CSRMatrix* mult_T(const CSRMatrix* B, int* C_map = nullptr);
 
         std::vector<int> rowptr;
         std::vector<int> cols;

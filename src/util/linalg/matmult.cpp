@@ -1,6 +1,7 @@
 #include "src/core/matrix.hpp"
-#include "src/core/csr_matrix.hpp"
-#include "src/core/bsr_matrix.hpp"
+
+using namespace raptor;
+
 
 CSRMatrix* CSRMatrix::mult(const CSRMatrix* B, int* C_map)
 {

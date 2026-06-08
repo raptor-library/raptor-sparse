@@ -43,7 +43,7 @@ TEST(MatrixTest, TestsInCore)
     }
 
     // Create CSR Matrix from COO
-    CSRMatrix* A_csr = A_coo->to_CSR();
+    CSRMatrix* A_csr = new CSRMatrix(A_coo);
 
     // Check dimensions of A_csr
     ASSERT_EQ(A_csr->n_rows,25);

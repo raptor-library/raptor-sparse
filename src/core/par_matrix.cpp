@@ -189,8 +189,8 @@ void bsr_to_csr_copy_helper(ParBSRMatrix* A, ParCSRMatrix* B)
     }
 
     // Convert on and off proc to CSR
-    B->on_proc = A->on_proc->to_CSR();
-    B->off_proc = A->off_proc->to_CSR();
+    B->on_proc = new CSRMatrix(A->on_proc);
+    B->off_proc = new CSRMatrix(A->off_proc);
 
     B->local_nnz = B->on_proc->nnz + B->off_proc->nnz;
     B->global_num_rows = A->global_num_rows * A->on_proc->b_rows;
@@ -616,8 +616,8 @@ void ParCSRMatrix::copy_helper(ParCSCMatrix* A)
         delete off_proc;
     }
 
-    on_proc = A->on_proc->to_CSR();
-    off_proc = A->off_proc->to_CSR();
+    on_proc = new CSRMatrix(A->on_proc);
+    off_proc = new CSRMatrix(A->off_proc);
 
     ParMatrix::copy_helper(A);
 }
@@ -633,8 +633,8 @@ void ParCSRMatrix::copy_helper(ParCOOMatrix* A)
         delete off_proc;
     }
 
-    on_proc = A->on_proc->to_CSR();
-    off_proc = A->off_proc->to_CSR();
+    on_proc = new CSRMatrix(A->on_proc);
+    off_proc = new CSRMatrix(A->off_proc);
 
     ParMatrix::copy_helper(A);
 }
@@ -650,8 +650,8 @@ void ParCSCMatrix::copy_helper(ParCSRMatrix* A)
         delete off_proc;
     }
 
-    on_proc = A->on_proc->to_CSC();
-    off_proc = A->off_proc->to_CSC();
+    on_proc = new CSRMatrix(A->on_proc);
+    off_proc = new CSRMatrix(A->off_proc);
 
     ParMatrix::copy_helper(A);
 }

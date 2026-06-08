@@ -119,7 +119,7 @@ void BSRMatrix::spmv(const double alpha, const double* x,
             for (int j = start; j < end; j++)
             {
                 first_col = cols[j]*b_cols;
-                std::array<double, b_size> block = data[j];
+                double* block = data[j];
                 for (int bj = 0; bj < b_cols; bj++)
                 {
                     val += alpha * block[bi*b_cols+bj] * x[first_col+bj];
@@ -148,7 +148,7 @@ void BSRMatrix::spmv_T(const double alpha, const double* x,
             for (int j = start; j < end; j++)
             {
                 first_col = cols[j]*b_cols;
-                std::array<double, b_size> block = data[j];
+                double* block = data[j];
                 for (int bj = 0; bj < b_cols; bj++)
                 {
                     b[first_col+bj] += alpha * block[bi*b_cols+bj] * x[first_row+bi];
@@ -177,7 +177,7 @@ void BSCMatrix::spmv(const double alpha, const double* x,
             for (int j = start; j < end; j++)
             {
                 first_row = rows[j]*b_rows;
-                std::array<double, b_size> block = data[j];
+                double* block = data[j];
                 for (int bj = 0; bj < b_rows; bj++)
                 {
                     b[first_row+bj] += alpha * block[bi*b_rows+bj] * x[first_col+bi];
@@ -204,7 +204,7 @@ void BSCMatrix::spmv_T(const double alpha, const double* x,
             for (int j = start; j < end; j++)
             {
                 first_row = rows[j]*b_rows;
-                std::array<double, b_size> block = data[j];
+                double* block = data[j];
                 for (int bj = 0; bj < b_rows; bj++)
                 {
                     val+= alpha * block[bi*b_rows+bj] * x[first_row+bj];
@@ -215,9 +215,13 @@ void BSCMatrix::spmv_T(const double alpha, const double* x,
     }
 }
 
-void Matrix::mult( const double* x, double* b)
+void Matrix::mult(const double* x, double* b)
 {
     spmv(1.0, x, 0.0, b);
+}
+void Matrix::mult_T(const double* x, double * b)
+{
+    spmv_T(1.0, x, 0.0, b);
 }
 void Matrix::residual(const double* x, const double* b, double* r)
 {

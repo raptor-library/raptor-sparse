@@ -52,14 +52,14 @@ namespace raptor
         {
             for (int i = 0; i < n_rows; i++)
             {
-                for (int j = 0; j < n_rows; j++)
+                for (int j = 0; j < n_cols; j++)
                 {
                     int pos = i*n_cols+j;
                     if (fabs(_data[pos]) > zero_tol)
                     {
                         rows.push_back(i);
                         cols.push_back(j);
-                        data.push_back(nnz);
+                        data.push_back(_data[pos]);
                     }
                 }
             }
@@ -219,8 +219,18 @@ namespace raptor
             }
         }
 
+        void add_value(int row, int col, double val)
+        {
+            rows.push_back(row);
+            cols.push_back(col);
+            data.push_back(val);
+            nnz++;
+        }
+
         // Linear Algebra Methods
         void spmv(const double alpha, const double* x, 
+                const double beta, double* b);
+        void spmv_T(const double alpha, const double* x, 
                 const double beta, double* b);
 
         std::vector<int> rows;

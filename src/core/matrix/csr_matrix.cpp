@@ -72,7 +72,7 @@ namespace raptor
         }
 
         std::vector<int> ctr(n_rows, 0);
-        for (int i = 0; i < n_rows; i++)
+        for (int i = 0; i < n_cols; i++)
         {
             int col_start = A->colptr[i];
             int col_end = A->colptr[i+1];
